@@ -42,13 +42,13 @@ func (r *ReactDiff) InsertNote(val interface{}, nodeIndex int) bool {
 
 	//Check if parent exist
 	if nodeIndex != 0 && r.NodeList[nodeIndex/2] == nil {
-		fmt.Println("Parent is not exist")
+		fmt.Println("Parent is not exist:", nodeIndex, nodeIndex/2)
 		return false
 	}
 
 	//Check if value already exist
 	if _, exist := r.NodeSet[val]; exist {
-		fmt.Println("Element duplicated")
+		fmt.Println("Element duplicated:", val)
 		return false
 	}
 
@@ -63,11 +63,11 @@ func (r *ReactDiff) deleteNode(nodeIndex int) {
 	}
 
 	nextIndex := nodeIndex*2 + 1
-	if r.NodeList[nextIndex] != nil {
+	if nextIndex < len(r.NodeList) && r.NodeList[nextIndex] != nil {
 		r.deleteNode(nextIndex)
 	}
 
-	if r.NodeList[nextIndex+1] != nil {
+	if nextIndex < len(r.NodeList) && r.NodeList[nextIndex+1] != nil {
 		r.deleteNode(nextIndex + 1)
 	}
 

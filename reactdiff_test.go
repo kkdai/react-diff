@@ -59,11 +59,14 @@ func TestRemove(t *testing.T) {
 	nT.InsertNote("a", 0)
 	nT.InsertNote("b", 1)
 	nT.InsertNote("c", 3)
-	nT.InsertNote("d", 5)
+	nT.InsertNote("d", 7)
+	nT.InsertNote("e", 15)
+	fmt.Println("current tree:", nT.NodeList)
 	nT.RemoveNote("b")
 	if nT.GetNodeIndex("c") != -1 {
 		t.Error("Recursive deletion failed,", nT.NodeList)
 	}
+	fmt.Println("final ", nT.NodeList)
 }
 
 func TestDiff(t *testing.T) {
