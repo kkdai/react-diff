@@ -1,5 +1,7 @@
 package reactdiff
 
+import "fmt"
+
 type DiffOption int
 
 const (
@@ -13,22 +15,54 @@ type Node struct {
 	Val   interface{}
 }
 
+func NewReactDiffTree(treeSize int) *ReactDiff {
+	nodes := make([]interface{}, treeSize)
+	newRD := new(ReactDiff)
+	newRD.NodeList = nodes
+	newRD.NodeSet = make(map[interface{}]bool)
+	return newRD
+}
+
 //React Diff is a binary unsort tree to represent the concept of React Diff
 //React Diff has optimize tree diff algorithm to optimize original tree diff O(n^3) -> O(n)
 type ReactDiff struct {
 	//Major node structure
-	NodeList []Node
+	NodeList []interface{}
 
 	//Node set target to store all node item in this tree
 	//It help to determine if any element is exist in this tree or not
 	NodeSet map[interface{}]bool
 }
 
-//Insert node into ReactDiff tree below to Parent Index
+//Insert node into ReactDiff tree below to Node Index
 //It will return the node index and success or not
-//Note: It is binary tree, insert more than 2 node below to one parent node will return false
-func (r *ReactDiff) InsertNote(val interface{}, parentIndex int) (int, bool) {
-	return 0, false
+//Note: If parent node not exist, will return false
+func (r *ReactDiff) InsertNote(val interface{}, nodeIndex int) bool {
+	if nodeIndex > len(r.NodeList) {
+		fmt.Println("length too big")
+		return false
+	}
+
+	if val == nil {
+		fmt.Println("Val is nil")
+		return false //cannot insert nil value
+	}
+
+	//Check if parent exist
+	if nodeIndex != 0 && r.NodeList[nodeIndex/2] == nil {
+		fmt.Println("Parent is not exist")
+		return false
+	}
+
+	//Check if value already exist
+	if _, exist := r.NodeSet[val]; exist {
+		fmt.Println("Element duplicated")
+		return false
+	}
+
+	r.NodeList[nodeIndex] = val
+	r.NodeSet[val] = true
+	return true
 }
 
 func (r *ReactDiff) RemoveNote(val interface{}) bool {
@@ -37,6 +71,11 @@ func (r *ReactDiff) RemoveNote(val interface{}) bool {
 
 //Return node index via node value, return -1 if node is not exist
 func (r *ReactDiff) GetNodeIndex(searchTarget interface{}) int {
+	for index, value := range r.NodeList {
+		if value == searchTarget {
+			return index
+		}
+	}
 	return -1
 }
 
