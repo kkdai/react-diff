@@ -15,14 +15,6 @@ type Node struct {
 	Val   interface{}
 }
 
-func NewReactDiffTree(treeSize int) *ReactDiff {
-	nodes := make([]interface{}, treeSize)
-	newRD := new(ReactDiff)
-	newRD.NodeList = nodes
-	newRD.NodeSet = make(map[interface{}]bool)
-	return newRD
-}
-
 //React Diff is a binary unsort tree to represent the concept of React Diff
 //React Diff has optimize tree diff algorithm to optimize original tree diff O(n^3) -> O(n)
 type ReactDiff struct {
@@ -65,8 +57,56 @@ func (r *ReactDiff) InsertNote(val interface{}, nodeIndex int) bool {
 	return true
 }
 
+func (r *ReactDiff) deleteNode(nodeIndex int) {
+	if r.NodeList[nodeIndex] == nil {
+		return
+	}
+
+	nextIndex := nodeIndex*2 + 1
+	if r.NodeList[nextIndex] != nil {
+		r.deleteNode(nextIndex)
+	}
+
+	if r.NodeList[nextIndex+1] != nil {
+		r.deleteNode(nextIndex + 1)
+	}
+
+	r.deleteSingleNode(nodeIndex)
+}
+
+func (r *ReactDiff) deleteSingleNode(nodeIndex int) {
+	if nodeIndex > len(r.NodeList) {
+		return
+	}
+
+	if r.NodeList[nodeIndex] == nil {
+		return
+	}
+
+	val := r.NodeList[nodeIndex]
+	r.NodeList[nodeIndex] = nil
+	delete(r.NodeSet, val)
+}
+
 func (r *ReactDiff) RemoveNote(val interface{}) bool {
-	return false
+	if len(r.NodeSet) == 0 {
+		fmt.Println("Empty tree deletion")
+		return false
+	}
+
+	if _, exist := r.NodeSet[val]; !exist {
+		fmt.Println("value not exist for deletion")
+		return false
+	}
+
+	//Remove node and its child nodes
+	for index, v := range r.NodeList {
+		if v == val {
+			r.deleteNode(index)
+		}
+	}
+
+	return true
 }
 
 //Return node index via node value, return -1 if node is not exist
@@ -87,4 +127,17 @@ func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
 
 //Print out tree structure
 func (r *ReactDiff) DisplayTree() {
+}
+
+//New a React Diff Tree with define size
+//The binary tree with basic alignment with array
+//0-> 1, 2
+//1-> 3, 4
+//2-> 5, 6 ....
+func NewReactDiffTree(treeSize int) *ReactDiff {
+	nodes := make([]interface{}, treeSize)
+	newRD := new(ReactDiff)
+	newRD.NodeList = nodes
+	newRD.NodeSet = make(map[interface{}]bool)
+	return newRD
 }

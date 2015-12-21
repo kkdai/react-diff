@@ -38,6 +38,32 @@ func TestInsert(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
+	nT := NewReactDiffTree(20)
+	if nT.RemoveNote(nil) == true {
+		t.Error("Should not remove nil value")
+	}
+
+	if nT.RemoveNote("a") == true {
+		t.Error("Remove from empty tree should failed.")
+	}
+
+	nT.InsertNote("a", 0)
+	if nT.RemoveNote("a") == false {
+		t.Error("Cannot remove item")
+	}
+
+	if nT.GetNodeIndex("a") != -1 {
+		t.Error("Try to search item already remove")
+	}
+
+	nT.InsertNote("a", 0)
+	nT.InsertNote("b", 1)
+	nT.InsertNote("c", 3)
+	nT.InsertNote("d", 5)
+	nT.RemoveNote("b")
+	if nT.GetNodeIndex("c") != -1 {
+		t.Error("Recursive deletion failed,", nT.NodeList)
+	}
 }
 
 func TestDiff(t *testing.T) {
