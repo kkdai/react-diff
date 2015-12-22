@@ -61,13 +61,97 @@ func TestRemove(t *testing.T) {
 	nT.InsertNote("c", 3)
 	nT.InsertNote("d", 7)
 	nT.InsertNote("e", 15)
-	fmt.Println("current tree:", nT.NodeList)
+	//fmt.Println("current tree:", nT.NodeList)
 	nT.RemoveNote("b")
 	if nT.GetNodeIndex("c") != -1 {
 		t.Error("Recursive deletion failed,", nT.NodeList)
 	}
-	fmt.Println("final ", nT.NodeList)
+	//fmt.Println("final ", nT.NodeList)
 }
 
-func TestDiff(t *testing.T) {
+func TestDiffMove(t *testing.T) {
+	nT := NewReactDiffTree(20)
+	nT.InsertNote("a", 0)
+	nT.InsertNote("b", 1)
+	nT.InsertNote("c", 2)
+	nT.InsertNote("d", 3)
+	nT.InsertNote("f", 5)
+	nT.InsertNote("e", 7)
+
+	nT2 := NewReactDiffTree(20)
+	nT2.InsertNote("a", 0)
+	nT2.InsertNote("b", 1)
+	nT2.InsertNote("c", 2)
+	nT2.InsertNote("d", 4)
+	nT2.InsertNote("h", 6)
+	nT2.InsertNote("e", 9)
+
+	nT.DiffTree(nT2, MOVE_EXISTING)
+	fmt.Println("Result: nT=", nT.NodeList)
+
+	if nT.GetNodeIndex("d") != 4 {
+		t.Error("Move error on d")
+	}
+
+	if nT.GetNodeIndex("e") != 9 {
+		t.Error("Move error on e")
+	}
+}
+
+func TestDiffAdd(t *testing.T) {
+	nT := NewReactDiffTree(20)
+	nT.InsertNote("a", 0)
+	nT.InsertNote("b", 1)
+	nT.InsertNote("c", 2)
+	nT.InsertNote("d", 3)
+	nT.InsertNote("f", 5)
+	nT.InsertNote("e", 7)
+
+	nT2 := NewReactDiffTree(20)
+	nT2.InsertNote("a", 0)
+	nT2.InsertNote("b", 1)
+	nT2.InsertNote("c", 2)
+	nT2.InsertNote("d", 4)
+	nT2.InsertNote("h", 6)
+	nT2.InsertNote("e", 9)
+
+	nT.DiffTree(nT2, INSERT_MARKUP)
+	fmt.Println("Result: nT=", nT.NodeList)
+
+	if nT.GetNodeIndex("h") != 6 {
+		t.Error("Add error on h")
+	}
+
+	if nT.GetNodeIndex("e") != 7 {
+		t.Error("Add error on e")
+	}
+}
+
+func TestDiffDel(t *testing.T) {
+	nT := NewReactDiffTree(20)
+	nT.InsertNote("a", 0)
+	nT.InsertNote("b", 1)
+	nT.InsertNote("c", 2)
+	nT.InsertNote("d", 3)
+	nT.InsertNote("f", 5)
+	nT.InsertNote("e", 7)
+
+	nT2 := NewReactDiffTree(20)
+	nT2.InsertNote("a", 0)
+	nT2.InsertNote("b", 1)
+	nT2.InsertNote("c", 2)
+	nT2.InsertNote("d", 4)
+	nT2.InsertNote("h", 6)
+	nT2.InsertNote("e", 9)
+
+	nT.DiffTree(nT2, REMOVE_NODE)
+	fmt.Println("Result: nT=", nT.NodeList)
+
+	if nT.GetNodeIndex("f") != -1 {
+		t.Error("Del error on f")
+	}
+
+	if nT.GetNodeIndex("e") != 7 {
+		t.Error("Del error on e")
+	}
 }
