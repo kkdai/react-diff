@@ -1,6 +1,13 @@
 package reactdiff
 
-import "fmt"
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"os/exec"
+
+	"github.com/awalterschulze/gographviz"
+)
 
 type DiffOption int
 
@@ -10,38 +17,33 @@ const (
 	REMOVE_NODE   DiffOption = 1 << iota
 )
 
-type Node struct {
-	Index int
-	Val   interface{}
-}
-
 //React Diff is a binary unsort tree to represent the concept of React Diff
 //React Diff has optimize tree diff algorithm to optimize original tree diff O(n^3) -> O(n)
 type ReactDiff struct {
 	//Major node structure
-	NodeList []interface{}
+	NodeList []string
 
 	//Node set target to store all node item in this tree
 	//It help to determine if any element is exist in this tree or not
-	NodeSet map[interface{}]bool
+	NodeSet map[string]bool
 }
 
 //Insert node into ReactDiff tree below to Node Index
 //It will return the node index and success or not
 //Note: If parent node not exist, will return false
-func (r *ReactDiff) InsertNote(val interface{}, nodeIndex int) bool {
-	if nodeIndex > len(r.NodeList) {
-		fmt.Println("length too big")
+func (r *ReactDiff) InsertNote(val string, nodeIndex int) bool {
+	if nodeIndex > len(r.NodeList) || nodeIndex <= 0 {
+		fmt.Println("length too big or too small")
 		return false
 	}
 
-	if val == nil {
+	if val == "" {
 		fmt.Println("Val is nil")
 		return false //cannot insert nil value
 	}
 
 	//Check if parent exist
-	if nodeIndex != 0 && r.NodeList[nodeIndex/2] == nil {
+	if nodeIndex > 1 && r.NodeList[nodeIndex/2] == "" {
 		fmt.Println("Parent is not exist:", nodeIndex, nodeIndex/2)
 		return false
 	}
@@ -52,22 +54,23 @@ func (r *ReactDiff) InsertNote(val interface{}, nodeIndex int) bool {
 		return false
 	}
 
+	//Reserve zero for other usage, indexing start from 1
 	r.NodeList[nodeIndex] = val
 	r.NodeSet[val] = true
 	return true
 }
 
 func (r *ReactDiff) deleteNode(nodeIndex int) {
-	if r.NodeList[nodeIndex] == nil {
+	if r.NodeList[nodeIndex] == "" {
 		return
 	}
 
-	nextIndex := nodeIndex*2 + 1
-	if nextIndex < len(r.NodeList) && r.NodeList[nextIndex] != nil {
+	nextIndex := nodeIndex * 2
+	if nextIndex < len(r.NodeList) && r.NodeList[nextIndex] != "" {
 		r.deleteNode(nextIndex)
 	}
 
-	if nextIndex < len(r.NodeList) && r.NodeList[nextIndex+1] != nil {
+	if nextIndex < len(r.NodeList) && r.NodeList[nextIndex+1] != "" {
 		r.deleteNode(nextIndex + 1)
 	}
 
@@ -79,16 +82,16 @@ func (r *ReactDiff) deleteSingleNode(nodeIndex int) {
 		return
 	}
 
-	if r.NodeList[nodeIndex] == nil {
+	if r.NodeList[nodeIndex] == "" {
 		return
 	}
 
 	val := r.NodeList[nodeIndex]
-	r.NodeList[nodeIndex] = nil
+	r.NodeList[nodeIndex] = ""
 	delete(r.NodeSet, val)
 }
 
-func (r *ReactDiff) RemoveNote(val interface{}) bool {
+func (r *ReactDiff) RemoveNote(val string) bool {
 	if len(r.NodeSet) == 0 {
 		fmt.Println("Empty tree deletion")
 		return false
@@ -122,11 +125,100 @@ func (r *ReactDiff) GetNodeIndex(searchTarget interface{}) int {
 // Diff Tree will diff with input target tree, if not identical will replace to new one
 // Return true if two tree is identical, false will replace to new one with React Diff Algorithm
 func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
+
+	fmt.Println("option=", option, " it is match with ", option&REMOVE_NODE)
+	for newIndex, value := range targetTree.NodeList {
+		if value == "" {
+			continue
+		}
+
+		oldIndex := r.GetNodeIndex(value)
+
+		//INSERT_MARKUP
+		if (option&INSERT_MARKUP) == INSERT_MARKUP && oldIndex == -1 {
+			//new node
+			fmt.Println("Insert mode: ready to insert")
+			r.InsertNote(value, newIndex)
+		}
+
+		//MOVE_EXISTING
+		if option&MOVE_EXISTING == MOVE_EXISTING {
+			fmt.Println("Enter move:", oldIndex, newIndex)
+			if oldIndex != -1 && oldIndex < newIndex {
+				//Change its address
+				r.NodeList[oldIndex] = ""
+				r.NodeList[newIndex] = value
+			}
+		}
+	}
+
+	//REMOVE_NODE
+	if option&REMOVE_NODE == REMOVE_NODE {
+		fmt.Println("Enter remove node")
+		for k, _ := range r.NodeSet {
+			fmt.Println("Remove check ", k)
+			if _, exist := targetTree.NodeSet[k]; !exist {
+
+				fmt.Println("Remove =>", k)
+				r.RemoveNote(k)
+			}
+		}
+	}
+
 	return false
 }
 
-//Print out tree structure
-func (r *ReactDiff) DisplayTree() {
+//Print out tree structure via Graphviz
+func (r *ReactDiff) DisplayGraphvizTree() {
+	_, err := exec.LookPath("dot")
+	if err != nil {
+		fmt.Println("Error: You need to install Graphviz to display tree")
+		return
+	}
+
+	graphAst, _ := gographviz.Parse([]byte(`digraph G{}`))
+	graph := gographviz.NewGraph()
+	gographviz.Analyse(graphAst, graph)
+
+	r.recursiveTree2Graphviz(graph, 1)
+	//graph.AddNode(defaultGraph, "a", nil)
+	//graph.AddNode(defaultGraph, "b", nil)
+	//graph.AddEdge("a", "b", true, nil)
+	fmt.Println(graph.String())
+
+	ioutil.WriteFile("out.gv", []byte(graph.String()), 0666)
+
+	system("dot out.gv -T png -o out.png")
+	system("open out.png")
+}
+
+func (r *ReactDiff) recursiveTree2Graphviz(g *gographviz.Graph, index int) {
+	if index >= len(r.NodeList) || r.NodeList[index] == "" {
+		return
+	}
+
+	//Add self and its parent node
+	//fmt.Println("Add node=", r.NodeList[index])
+	g.AddNode("G", r.NodeList[index], nil)
+	if index/2 != 0 {
+		//fmt.Println("Add edge:", r.NodeList[index/2], "->", r.NodeList[index])
+		g.AddEdge(r.NodeList[index/2], r.NodeList[index], true, nil)
+	}
+
+	r.recursiveTree2Graphviz(g, index*2)
+	r.recursiveTree2Graphviz(g, index*2+1)
+}
+
+func system(s string) {
+	cmd := exec.Command(`/bin/sh`, `-c`, s)
+	var out bytes.Buffer
+
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("%s", out.String())
 }
 
 //New a React Diff Tree with define size
@@ -135,9 +227,9 @@ func (r *ReactDiff) DisplayTree() {
 //1-> 3, 4
 //2-> 5, 6 ....
 func NewReactDiffTree(treeSize int) *ReactDiff {
-	nodes := make([]interface{}, treeSize)
+	nodes := make([]string, treeSize)
 	newRD := new(ReactDiff)
 	newRD.NodeList = nodes
-	newRD.NodeSet = make(map[interface{}]bool)
+	newRD.NodeSet = make(map[string]bool)
 	return newRD
 }
