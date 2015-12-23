@@ -33,24 +33,24 @@ type ReactDiff struct {
 //Note: If parent node not exist, will return false
 func (r *ReactDiff) InsertNote(val string, nodeIndex int) bool {
 	if nodeIndex > len(r.NodeList) || nodeIndex <= 0 {
-		fmt.Println("length too big or too small")
+		//fmt.Println("length too big or too small")
 		return false
 	}
 
 	if val == "" {
-		fmt.Println("Val is nil")
+		//fmt.Println("Val is nil")
 		return false //cannot insert nil value
 	}
 
 	//Check if parent exist
 	if nodeIndex > 1 && r.NodeList[nodeIndex/2] == "" {
-		fmt.Println("Parent is not exist:", nodeIndex, nodeIndex/2)
+		//fmt.Println("Parent is not exist:", nodeIndex, nodeIndex/2)
 		return false
 	}
 
 	//Check if value already exist
 	if _, exist := r.NodeSet[val]; exist {
-		fmt.Println("Element duplicated:", val)
+		//fmt.Println("Element duplicated:", val)
 		return false
 	}
 
@@ -93,12 +93,12 @@ func (r *ReactDiff) deleteSingleNode(nodeIndex int) {
 
 func (r *ReactDiff) RemoveNote(val string) bool {
 	if len(r.NodeSet) == 0 {
-		fmt.Println("Empty tree deletion")
+		//fmt.Println("Empty tree deletion")
 		return false
 	}
 
 	if _, exist := r.NodeSet[val]; !exist {
-		fmt.Println("value not exist for deletion")
+		//fmt.Println("value not exist for deletion")
 		return false
 	}
 
@@ -126,7 +126,7 @@ func (r *ReactDiff) GetNodeIndex(searchTarget interface{}) int {
 // Return true if two tree is identical, false will replace to new one with React Diff Algorithm
 func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
 
-	fmt.Println("option=", option, " it is match with ", option&REMOVE_NODE)
+	//fmt.Println("option=", option, " it is match with ", option&REMOVE_NODE)
 	for newIndex, value := range targetTree.NodeList {
 		if value == "" {
 			continue
@@ -137,13 +137,13 @@ func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
 		//INSERT_MARKUP
 		if (option&INSERT_MARKUP) == INSERT_MARKUP && oldIndex == -1 {
 			//new node
-			fmt.Println("Insert mode: ready to insert")
+			//fmt.Println("Insert mode: ready to insert")
 			r.InsertNote(value, newIndex)
 		}
 
 		//MOVE_EXISTING
 		if option&MOVE_EXISTING == MOVE_EXISTING {
-			fmt.Println("Enter move:", oldIndex, newIndex)
+			//fmt.Println("Enter move:", oldIndex, newIndex)
 			if oldIndex != -1 && oldIndex < newIndex {
 				//Change its address
 				r.NodeList[oldIndex] = ""
@@ -154,12 +154,12 @@ func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
 
 	//REMOVE_NODE
 	if option&REMOVE_NODE == REMOVE_NODE {
-		fmt.Println("Enter remove node")
+		//fmt.Println("Enter remove node")
 		for k, _ := range r.NodeSet {
-			fmt.Println("Remove check ", k)
+			//fmt.Println("Remove check ", k)
 			if _, exist := targetTree.NodeSet[k]; !exist {
 
-				fmt.Println("Remove =>", k)
+				//fmt.Println("Remove =>", k)
 				r.RemoveNote(k)
 			}
 		}
@@ -184,7 +184,7 @@ func (r *ReactDiff) DisplayGraphvizTree() {
 	//graph.AddNode(defaultGraph, "a", nil)
 	//graph.AddNode(defaultGraph, "b", nil)
 	//graph.AddEdge("a", "b", true, nil)
-	fmt.Println(graph.String())
+	//fmt.Println(graph.String())
 
 	ioutil.WriteFile("out.gv", []byte(graph.String()), 0666)
 

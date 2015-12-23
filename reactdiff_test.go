@@ -1,7 +1,6 @@
 package reactdiff_test
 
 import (
-	"fmt"
 	"strconv"
 	"testing"
 
@@ -12,7 +11,6 @@ func TestInsert(t *testing.T) {
 	nT := NewReactDiffTree(20)
 
 	nT.InsertNote("a", 1)
-	fmt.Println(nT.NodeList)
 	if nT.GetNodeIndex("a") != 1 {
 		t.Error("Basic error: First item index=", nT.GetNodeIndex("a"))
 	}
@@ -88,7 +86,7 @@ func TestDiffMove(t *testing.T) {
 	nT2.InsertNote("e", 10)
 
 	nT.DiffTree(nT2, MOVE_EXISTING)
-	fmt.Println("Result: nT=", nT.NodeList)
+	//fmt.Println("Result: nT=", nT.NodeList)
 
 	if nT.GetNodeIndex("d") != 5 {
 		t.Error("Move error on d", nT.GetNodeIndex("d"))
@@ -117,7 +115,7 @@ func TestDiffAdd(t *testing.T) {
 	nT2.InsertNote("e", 10)
 
 	nT.DiffTree(nT2, INSERT_MARKUP)
-	fmt.Println("Result: nT=", nT.NodeList)
+	//fmt.Println("Result: nT=", nT.NodeList)
 
 	if nT.GetNodeIndex("h") != 7 {
 		t.Error("Add error on h")
@@ -146,7 +144,7 @@ func TestDiffDel(t *testing.T) {
 	nT2.InsertNote("e", 10)
 
 	nT.DiffTree(nT2, REMOVE_NODE)
-	fmt.Println("Result: nT=", nT.NodeList)
+	//fmt.Println("Result: nT=", nT.NodeList)
 
 	if nT.GetNodeIndex("f") != -1 {
 		t.Error("Del error on f")
