@@ -248,10 +248,9 @@ func BenchmarkAdd(b *testing.B) {
 }
 
 func BenchmarkDel(b *testing.B) {
-	b.ResetTimer()
-	big := NewReactDiffTree(b.N)
+	big := NewReactDiffTree(10000)
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; i < 10000; i++ {
 		big.InsertNote(strconv.Itoa(i), i)
 	}
 
@@ -262,10 +261,9 @@ func BenchmarkDel(b *testing.B) {
 }
 
 func BenchmarkGet(b *testing.B) {
-	b.ResetTimer()
-	big := NewReactDiffTree(b.N)
+	big := NewReactDiffTree(10000)
 
-	for i := 0; i < b.N; i++ {
+	for i := 0; i < 10000; i++ {
 		big.InsertNote(strconv.Itoa(i), i)
 	}
 

@@ -79,11 +79,10 @@ Benchmark
 ---------------
 
 ```
-BenchmarkAdd-4 	 1000000	      1602 ns/op
-BenchmarkDel-4 	   30000	    113652 ns/op
-BenchmarkGet-4 	   10000	    116155 ns/op
-BenchmarkDiff-4	  300000	      5855 ns/op
-```
+BenchmarkAdd-4 	 1000000	      1229 ns/op
+BenchmarkDel-4 	 5000000	       228 ns/op
+BenchmarkGet-4 	   10000	    122375 ns/op
+BenchmarkDiff-4	  300000	      4396 ns/op```
 
 Inspired
 ---------------
