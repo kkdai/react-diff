@@ -1,16 +1,37 @@
-React Diff binary tree in Golang
+React Element Diff like Binary Tree Diff in Golang
 ==================
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/kkdai/react-diff/master/LICENSE)  [![GoDoc](https://godoc.org/github.com/kkdai/react-diff?status.svg)](https://godoc.org/github.com/kkdai/react-diff)  [![Build Status](https://travis-ci.org/kkdai/react-diff.svg?branch=master)](https://travis-ci.org/kkdai/react-diff)
 
 
-What is React Diff
+Features
 ---------------
 
+- Support React Element Diff (which only run `O(n)` on Tree diff)
+- Support `three diff options`. 
+- Support [Graphviz](http://www.graphviz.org/) tree display (Mac OSX only)
 
-How it works
+What is React Element Diff like Binary Tree Diff
 ---------------
 
+It is a biary tree diff, which support three option: 
+
+- `INSERT_MARKUP`: Diff and Insert node if current tree don't have this node.
+- `MOVE_EXISTING`: Move node refer diff tree.
+- `REMOVE_NODE`: Remove node if found node not exist in diff tree.
+
+The diff rule refer to ["React Element Diff Reconciliation"](http://facebook.github.io/react/docs/reconciliation.html) and trying to modify some rul into tree diff.
+
+
+
+Limitations
+---------------
+
+It has some limitation when we trying to apply element dif into tree diff.
+
+- The tree must be binary tree (could be unsort)
+- The diff most obey the diff option, otherwise diff result will be wrong.
+- It take more memory space and run time to support three diff options.
 
 
 Install
@@ -53,11 +74,23 @@ func main() {
 
 ![](images/ex1.png)
 
+
+Benchmark
+---------------
+
+```
+BenchmarkAdd-4 	 1000000	      1602 ns/op
+BenchmarkDel-4 	   30000	    113652 ns/op
+BenchmarkGet-4 	   10000	    116155 ns/op
+BenchmarkDiff-4	  300000	      5855 ns/op
+```
+
 Inspired
 ---------------
 
 - [React 源码剖析系列 － 不可思议的 react diff](http://zhuanlan.zhihu.com/purerender/20346379)
 - [React -Get Started](http://facebook.github.io/react/docs/getting-started.html)
+- [React’s diff algorithm](http://calendar.perfplanet.com/2013/diff/)
 
 Project52
 ---------------

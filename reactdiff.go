@@ -91,6 +91,21 @@ func (r *ReactDiff) deleteSingleNode(nodeIndex int) {
 	delete(r.NodeSet, val)
 }
 
+//Clone current tree to another new one
+func (r *ReactDiff) Clone() *ReactDiff {
+	nT := NewReactDiffTree(len(r.NodeList))
+	for k, v := range r.NodeList {
+		nT.NodeList[k] = v
+	}
+
+	for k, v := range r.NodeSet {
+		nT.NodeSet[k] = v
+	}
+
+	return nT
+}
+
+//Remove node via node value, return true if node exist and successful delete
 func (r *ReactDiff) RemoveNote(val string) bool {
 	if len(r.NodeSet) == 0 {
 		//fmt.Println("Empty tree deletion")
@@ -125,6 +140,7 @@ func (r *ReactDiff) GetNodeIndex(searchTarget interface{}) int {
 // Diff Tree will diff with input target tree, if not identical will replace to new one
 // Return true if two tree is identical, false will replace to new one with React Diff Algorithm
 func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
+	refTree := r.Clone()
 
 	//fmt.Println("option=", option, " it is match with ", option&REMOVE_NODE)
 	for newIndex, value := range targetTree.NodeList {
@@ -132,23 +148,27 @@ func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
 			continue
 		}
 
-		oldIndex := r.GetNodeIndex(value)
+		oldIndex := refTree.GetNodeIndex(value)
 
 		//INSERT_MARKUP
 		if (option&INSERT_MARKUP) == INSERT_MARKUP && oldIndex == -1 {
 			//new node
-			//fmt.Println("Insert mode: ready to insert")
 			r.InsertNote(value, newIndex)
+			//fmt.Println("Insert mode: ready to insert", newIndex, value, r.NodeList)
+			continue
 		}
 
 		//MOVE_EXISTING
 		if option&MOVE_EXISTING == MOVE_EXISTING {
-			//fmt.Println("Enter move:", oldIndex, newIndex)
-			if oldIndex != -1 && oldIndex < newIndex {
+			if oldIndex != -1 && oldIndex != newIndex {
 				//Change its address
-				r.NodeList[oldIndex] = ""
+				if r.NodeList[oldIndex] == value {
+					r.NodeList[oldIndex] = ""
+				}
 				r.NodeList[newIndex] = value
 			}
+
+			//fmt.Println("Enter move:", value, oldIndex, newIndex, r.NodeList, refTree.NodeList)
 		}
 	}
 
@@ -181,11 +201,6 @@ func (r *ReactDiff) DisplayGraphvizTree() {
 	gographviz.Analyse(graphAst, graph)
 
 	r.recursiveTree2Graphviz(graph, 1)
-	//graph.AddNode(defaultGraph, "a", nil)
-	//graph.AddNode(defaultGraph, "b", nil)
-	//graph.AddEdge("a", "b", true, nil)
-	//fmt.Println(graph.String())
-
 	ioutil.WriteFile("out.gv", []byte(graph.String()), 0666)
 
 	system("dot out.gv -T png -o out.png")
