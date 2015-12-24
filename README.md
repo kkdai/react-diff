@@ -83,6 +83,7 @@ BenchmarkAdd-4 	 1000000	      1229 ns/op
 BenchmarkDel-4 	 5000000	       228 ns/op
 BenchmarkGet-4 	   10000	    122375 ns/op
 BenchmarkDiff-4	  300000	      4396 ns/op```
+```
 
 Inspired
 ---------------
