@@ -20,7 +20,7 @@ It is a biary tree diff, which support three option:
 - `MOVE_EXISTING`: Move node refer diff tree.
 - `REMOVE_NODE`: Remove node if found node not exist in diff tree.
 
-The diff rule refer to ["React Element Diff Reconciliation"](http://facebook.github.io/react/docs/reconciliation.html) and trying to modify some rul into tree diff.
+The diff rule refer to ["React Element Diff"](https://facebook.github.io/react/docs/glossary.html) and trying to modify some rul into tree diff.
 
 
 
@@ -90,6 +90,7 @@ Inspired
 - [React 源码剖析系列 － 不可思议的 react diff](http://zhuanlan.zhihu.com/purerender/20346379)
 - [React -Get Started](http://facebook.github.io/react/docs/getting-started.html)
 - [React’s diff algorithm](http://calendar.perfplanet.com/2013/diff/)
+- [React (Virtual) DOM Terminology](https://facebook.github.io/react/docs/glossary.html)
 
 Project52
 ---------------
