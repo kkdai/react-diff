@@ -92,6 +92,7 @@ Inspired
 - [React -Get Started](http://facebook.github.io/react/docs/getting-started.html)
 - [React’s diff algorithm](http://calendar.perfplanet.com/2013/diff/)
 - [React (Virtual) DOM Terminology](https://facebook.github.io/react/docs/glossary.html)
+- [深度剖析：如何实现一个 Virtual DOM 算法](https://github.com/livoras/blog/issues/13)
 
 Project52
 ---------------
