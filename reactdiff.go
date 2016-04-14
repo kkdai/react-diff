@@ -31,7 +31,7 @@ type ReactDiff struct {
 //Insert node into ReactDiff tree below to Node Index
 //It will return the node index and success or not
 //Note: If parent node not exist, will return false
-func (r *ReactDiff) InsertNote(val string, nodeIndex int) bool {
+func (r *ReactDiff) InsertNode(val string, nodeIndex int) bool {
 	if nodeIndex > len(r.NodeList) || nodeIndex <= 0 {
 		//fmt.Println("length too big or too small")
 		return false
@@ -106,7 +106,7 @@ func (r *ReactDiff) Clone() *ReactDiff {
 }
 
 //Remove node via node value, return true if node exist and successful delete
-func (r *ReactDiff) RemoveNote(val string) bool {
+func (r *ReactDiff) RemoveNode(val string) bool {
 	if len(r.NodeSet) == 0 {
 		//fmt.Println("Empty tree deletion")
 		return false
@@ -153,7 +153,7 @@ func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
 		//INSERT_MARKUP
 		if (option&INSERT_MARKUP) == INSERT_MARKUP && oldIndex == -1 {
 			//new node
-			r.InsertNote(value, newIndex)
+			r.InsertNode(value, newIndex)
 			//fmt.Println("Insert mode: ready to insert", newIndex, value, r.NodeList)
 			continue
 		}
@@ -180,7 +180,7 @@ func (r *ReactDiff) DiffTree(targetTree *ReactDiff, option DiffOption) bool {
 			if _, exist := targetTree.NodeSet[k]; !exist {
 
 				//fmt.Println("Remove =>", k)
-				r.RemoveNote(k)
+				r.RemoveNode(k)
 			}
 		}
 	}
